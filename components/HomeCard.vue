@@ -34,19 +34,12 @@
 </template>
 
 <script>
-import homes from "~/data/homes";
-
 export default {
-  head() {
-    return {
-      title: this.home.title,
-    };
-  },
-  data: () => ({
-    home: {},
-  }),
-  created() {
-    this.home = homes.find((home) => home.objectID === this.$route.params.id);
+  props: {
+    home: {
+      type: Object,
+      required: true,
+    },
   },
   computed: {
     fullAddress() {
