@@ -29,7 +29,7 @@
         >{{ home.guests }} guests, {{ home.bedrooms }} rooms,
         {{ home.beds }} beds, {{ home.bathrooms }} bath</span
       >
-      <div id="map" class="relative h-96 w-auto"></div>
+      <div ref="map" class="relative h-96 w-auto"></div>
     </div>
   </div>
 </template>
@@ -41,43 +41,19 @@ export default {
   head() {
     return {
       title: this.home.title,
-      script: [
-        {
-          src: "https://www.bing.com/api/maps/mapcontrol",
-          hid: "bing-maps",
-          defer: true,
-          callback: () => {
-            const mapOptions = {
-              credentials:
-                "AoVLdaruC1LgCST8bLv8f-i22TR4QwSPnvF2fwPJnFam0foCnwUNyVNjr8wqjgsm",
-              center: new Microsoft.Maps.Location(
-                this.home._geoloc.lat,
-                this.home._geoloc.lng
-              ),
-              zoom: 18,
-              disableScrollWheelZoom: true,
-              disableZooming: true,
-            };
-
-            const map = new Microsoft.Maps.Map("#map", mapOptions);
-
-            const position = map.getCenter();
-
-            const pin = new Microsoft.Maps.Pushpin(position, {
-              title: this.home.title,
-              subTitle: this.home.type,
-            });
-
-            map.entities.push(pin);
-          },
-        },
-      ],
     };
   },
   data: () => ({
     home: {},
     map: null,
   }),
+  mounted() {
+    this.$maps.showMap(
+      this.$refs.map,
+      this.home._geoloc.lat,
+      this.home._geoloc.lng
+    );
+  },
   created() {
     this.home = homes.find((home) => home.objectID === this.$route.params.id);
   },
