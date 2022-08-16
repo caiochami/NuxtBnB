@@ -35,18 +35,12 @@
 </template>
 
 <script>
-import homes from "~/data/homes";
-
 export default {
   head() {
     return {
       title: this.home.title,
     };
   },
-  data: () => ({
-    home: {},
-    map: null,
-  }),
   mounted() {
     this.$maps.showMap(
       this.$refs.map,
@@ -54,8 +48,12 @@ export default {
       this.home._geoloc.lng
     );
   },
-  created() {
-    this.home = homes.find((home) => home.objectID === this.$route.params.id);
+  async asyncData({ params, $dataApi }) {
+    const home = await $dataApi.getHome(params.id);
+
+    return {
+      home,
+    };
   },
   computed: {
     fullAddress() {
