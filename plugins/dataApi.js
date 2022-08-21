@@ -1,7 +1,7 @@
 export default function (context, inject) {
   const appId = "L27CG164QL";
 
-  const baseUrl = `https://${appId}.algoliaaaa.net/1/indexes/homes`;
+  const baseUrl = `https://${appId}.algolia.net/1/indexes/homes`;
 
   const headers = {
     "X-Algolia-API-Key": "c6dd0b9d4136625a0ad3cde3c00e5298",
