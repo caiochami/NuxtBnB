@@ -48,11 +48,18 @@ export default {
       this.home._geoloc.lng
     );
   },
-  async asyncData({ params, $dataApi }) {
-    const home = await $dataApi.getHome(params.id);
+  async asyncData({ params, $dataApi, error }) {
+    const { json, ok, status, statusText } = await $dataApi.getHome(params.id);
+
+    if (!ok) {
+      return error({
+        statusCode: status,
+        message: statusText,
+      });
+    }
 
     return {
-      home,
+      home: json,
     };
   },
   computed: {
