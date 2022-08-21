@@ -1,7 +1,7 @@
 export default function (context, inject) {
   const appId = "L27CG164QL";
 
-  const baseUrl = `https://${appId}.algolia.net/1/indexes/homes`;
+  const baseUrl = `https://${appId}.algolia.net/1/indexes`;
 
   const headers = {
     "X-Algolia-API-Key": "c6dd0b9d4136625a0ad3cde3c00e5298",
@@ -10,12 +10,13 @@ export default function (context, inject) {
 
   inject("dataApi", {
     getHome,
+    getReviewsByHomeId,
   });
 
   async function getHome(homeId) {
     try {
       return unwrap(
-        await fetch(`${baseUrl}/${homeId}`, {
+        await fetch(`${baseUrl}/homes/${homeId}`, {
           headers,
         })
       );
@@ -30,6 +31,22 @@ export default function (context, inject) {
     const { ok, status, statusText } = response;
 
     return { ok, status, statusText, json };
+  }
+
+  async function getReviewsByHomeId(homeId) {
+    try {
+      return unwrap(
+        await fetch(`${baseUrl}/reviews/query`, {
+          headers,
+          method: "POST",
+          body: JSON.stringify({
+            filters: `homeId:${homeId}`,
+          }),
+        })
+      );
+    } catch (error) {
+      return getErrorResponse(error);
+    }
   }
 
   function getErrorResponse(error) {

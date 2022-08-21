@@ -16,8 +16,8 @@
         <nuxt-link
           class="text-base font-medium text-indigo-600 hover:text-indigo-500"
           to="/"
-          >Go back home</nuxt-link
-        >
+          >Go back home
+        </nuxt-link>
       </div>
     </div>
   </div>
