@@ -36,8 +36,8 @@
           <img :src="review.reviewer.image" alt="review.objectID" />
           <div class="flex flex-col space-y-2">
             <p class="text-lg text-gray-600">{{ review.reviewer.name }}</p>
-            <span>{{ review.date }}</span>
-            <span>{{ review.comment }}</span>
+            <span>{{ formatDate(review.date) }}</span>
+            <short-text :text="review.comment" :target="150" />
           </div>
         </div>
       </div>
@@ -88,6 +88,16 @@ export default {
       const { address, city, state, country } = this.home.location;
 
       return `${address}, ${city}, ${state}, ${country}`;
+    },
+  },
+  methods: {
+    formatDate(dateTime) {
+      const date = new Date(dateTime);
+
+      return date.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      });
     },
   },
 };
