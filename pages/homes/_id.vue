@@ -25,10 +25,10 @@
         <img src="/images/star.svg" alt="star" class="h-4 w-4 inline-block" />
         <span>{{ home.reviewValue }}</span>
       </div>
-      <span
-        >{{ home.guests }} guests, {{ home.bedrooms }} rooms,
-        {{ home.beds }} beds, {{ home.bathrooms }} bath</span
-      >
+      <span>
+        {{ home.guests }} guests, {{ home.bedrooms }} rooms,
+        {{ home.beds }} beds, {{ home.bathrooms }} bath
+      </span>
       <div ref="map" class="relative h-96 w-auto"></div>
 
       <div v-for="review in reviews" :key="review.objectID">
@@ -40,6 +40,14 @@
             <short-text :text="review.comment" :target="150" />
           </div>
         </div>
+      </div>
+
+      <div class="flex flex-col gap-y-2">
+        <img :src="user.image" alt="User" />
+        <span>{{ user.name }}</span>
+        <span>{{ formatDate(user.joined) }}</span>
+        <span>{{ user.reviewCount }}</span>
+        <span>{{ user.description }}</span>
       </div>
     </div>
   </div>
@@ -60,28 +68,24 @@ export default {
     );
   },
   async asyncData({ params, $dataApi, error }) {
-    const homeResponse = await $dataApi.getHome(params.id);
-
-    if (!homeResponse.ok) {
-      return error({
-        statusCode: homeResponse.status,
-        message: homeResponse.statusText,
+    return Promise.all([
+      $dataApi.getHome(params.id),
+      $dataApi.getReviewsByHomeId(params.id),
+      $dataApi.getUsersByHomeId(params.id),
+    ])
+      .then((values) => {
+        return {
+          home: values[0].json,
+          reviews: values[1].json.hits,
+          user: values[2].json.hits[0],
+        };
+      })
+      .catch((failed) => {
+        return error({
+          statusCode: failed.status,
+          message: failed.statusText,
+        });
       });
-    }
-
-    const reviewResponse = await $dataApi.getReviewsByHomeId(params.id);
-
-    if (!reviewResponse.ok) {
-      return error({
-        statusCode: reviewResponse.status,
-        message: reviewResponse.statusText,
-      });
-    }
-
-    return {
-      home: homeResponse.json,
-      reviews: reviewResponse.json.hits,
-    };
   },
   computed: {
     fullAddress() {

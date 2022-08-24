@@ -11,6 +11,7 @@ export default function (context, inject) {
   inject("dataApi", {
     getHome,
     getReviewsByHomeId,
+    getUsersByHomeId,
   });
 
   async function getHome(homeId) {
@@ -42,6 +43,23 @@ export default function (context, inject) {
           body: JSON.stringify({
             filters: `homeId:${homeId}`,
             hitsPerPage: 6,
+            attributesToHighlight: [],
+          }),
+        })
+      );
+    } catch (error) {
+      return getErrorResponse(error);
+    }
+  }
+
+  async function getUsersByHomeId(homeId) {
+    try {
+      return unwrap(
+        await fetch(`${baseUrl}/users/query`, {
+          headers,
+          method: "POST",
+          body: JSON.stringify({
+            filters: `homeId:${homeId}`,
             attributesToHighlight: [],
           }),
         })
