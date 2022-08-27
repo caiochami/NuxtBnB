@@ -1,52 +1,74 @@
-export default function (context, inject) {
-  let mapLoaded = false;
+import { unwrap } from "../utilities/unwrap";
 
-  let mapWaiting = null;
+export default function (context, inject) {
+  const bingApiKey =
+    "AoVLdaruC1LgCST8bLv8f-i22TR4QwSPnvF2fwPJnFam0foCnwUNyVNjr8wqjgsm";
+
+  let isLoaded = false;
+
+  let waiting = [];
 
   addScript();
 
   inject("maps", {
     showMap,
+    makeAutoComplete,
   });
 
   function addScript() {
     const script = document.createElement("script");
 
-    script.src = "https://www.bing.com/api/maps/mapcontrol?callback=initMap";
+    script.src =
+      "https://www.bing.com/api/maps/mapcontrol?callback=initBingMap";
 
     script.async = true;
 
-    window.initMap = initMap;
+    window.initBingMap = initBingMap;
 
     document.head.appendChild(script);
   }
 
-  function initMap() {
-    mapLoaded = true;
+  function initBingMap() {
+    isLoaded = true;
 
-    if (mapWaiting) {
-      const { canvas, lat, lng } = mapWaiting;
+    waiting.forEach((item) => {
+      if (typeof item.fn === "function") {
+        item.fn(...item.arguments);
+      }
+    });
 
-      renderMap(canvas, lat, lng);
+    waiting = [];
+  }
 
-      mapWaiting = null;
+  async function makeAutoComplete(value) {
+    if (!isLoaded) {
+      waiting.push({
+        fn: makeAutoComplete,
+        arguments,
+      });
+
+      return;
     }
+
+    return unwrap(
+      await fetch(
+        `http://dev.virtualearth.net/REST/v1/Autosuggest?query=${value}&includeEntityTypes=Address,Place&key=${bingApiKey}`
+      )
+    );
   }
 
   function showMap(canvas, lat, lng) {
-    if (mapLoaded) renderMap(canvas, lat, lng);
-    else
-      mapWaiting = {
-        canvas,
-        lat,
-        lng,
-      };
-  }
+    if (!isLoaded) {
+      waiting.push({
+        fn: showMap,
+        arguments,
+      });
 
-  function renderMap(canvas, lat, lng) {
+      return;
+    }
+
     const mapOptions = {
-      credentials:
-        "AoVLdaruC1LgCST8bLv8f-i22TR4QwSPnvF2fwPJnFam0foCnwUNyVNjr8wqjgsm",
+      credentials: bingApiKey,
       center: new Microsoft.Maps.Location(lat, lng),
       zoom: 18,
       disableScrollWheelZoom: true,
